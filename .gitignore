@@ -1,0 +1,9 @@
+node_modules/
+session/*
+!session/.gitkeep
+temp/*
+!temp/.gitkeep
+data/settings.json
+*.log
+.env
+npm-debug.log*
