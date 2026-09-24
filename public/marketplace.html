@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Marketplace — BMW LITE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d0c; --bg-panel: #141716; --bg-panel-2: #191d1c; --line: #262b29;
+    --lime: #c8ff4d; --lime-dim: #8fb83a; --text: #ecf1ee; --text-dim: rgba(255, 255, 255, 0.58); /* white + opacity, tinted for dark theme (Material Design guidance) instead of solid grey */ --violet: #b389ff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif;
+    background-image: radial-gradient(circle at 10% 0%, rgba(200,255,77,0.06), transparent 40%), radial-gradient(circle at 90% 30%, rgba(179,137,255,0.05), transparent 45%);
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header.nav { position: sticky; top: 0; z-index: 20; background: rgba(11,13,12,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; max-width: 1000px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 16px; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #0b0d0c; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+  .brand span { color: var(--lime); }
+  .nav-links { display: flex; gap: 20px; font-size: 13px; color: var(--text-dim); }
+  .nav-links a:hover { color: var(--lime); }
+
+  .hero { padding: 60px 0 30px; text-align: center; }
+  .hero h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; margin: 0 0 12px; }
+  .hero h1 .accent { color: var(--lime); }
+  .hero p { color: var(--text-dim); font-size: 14.5px; max-width: 560px; margin: 0 auto; }
+
+  .cta-strip {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: rgba(200,255,77,0.07); border: 1px solid rgba(200,255,77,0.22); border-radius: 14px;
+    padding: 18px 22px; margin: 30px 0; flex-wrap: wrap;
+  }
+  .cta-strip .txt { font-size: 13.5px; color: var(--text-dim); }
+  .cta-strip .txt b { color: var(--lime); }
+  .cta-btn { background: var(--lime); color: #0b0d0c; font-weight: 700; padding: 11px 20px; border-radius: 9px; font-size: 13px; white-space: nowrap; }
+
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: 20px; margin: 46px 0 6px; }
+  .section-sub { color: var(--text-dim); font-size: 13px; margin: 0 0 22px; }
+
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .cat-card { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .cat-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(200,255,77,0.08); display: flex; align-items: center; justify-content: center; font-size: 19px; margin-bottom: 14px; }
+  .cat-card h3 { margin: 0 0 6px; font-size: 15px; }
+  .cat-card p { font-size: 12.5px; color: var(--text-dim); margin: 0 0 14px; line-height: 1.55; }
+  .cat-card ul { margin: 0; padding-left: 18px; font-size: 12px; color: var(--text-dim); line-height: 1.9; }
+  .cat-card ul li b { color: var(--text); }
+  .cat-badge { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 99px; background: rgba(200,255,77,0.1); color: var(--lime-dim); margin-bottom: 10px; }
+  .cat-card.social .cat-icon { background: rgba(179,137,255,0.1); color: var(--violet); }
+  .cat-card.social .cat-badge { background: rgba(179,137,255,0.12); color: var(--violet); }
+
+  .guide-card { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+  .guide-card h3 { margin: 0 0 10px; font-size: 16px; }
+  .guide-card ol, .guide-card ul { font-size: 13px; color: var(--text-dim); line-height: 1.8; padding-left: 20px; }
+  .guide-card ol li b, .guide-card ul li b { color: var(--text); }
+  .guide-note { font-size: 11.5px; color: var(--text-dim); background: var(--bg-panel-2); border-left: 3px solid var(--lime-dim); padding: 10px 14px; border-radius: 6px; margin-top: 14px; }
+
+  footer { border-top: 1px solid var(--line); padding: 30px 0; text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 40px; }
+
+  @media (max-width: 800px) {
+    .cat-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><div class="brand-mark">B</div>BMW<span>-LITE</span></div>
+    <div class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="#categories">APIs</a>
+      <a href="#guides">Guides</a>
+      <a href="/login.html">Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>API <span class="accent">Marketplace</span></h1>
+    <p>Access to the same APIs that power BMW LITE — Payment, Social Media Downloaders, and AI tools, ready for your own projects.</p>
+  </div>
+
+  <div class="cta-strip">
+    <div class="txt">Want access to any of these APIs? Message <b>+255 693 469 723</b> on WhatsApp.</div>
+    <a href="https://wa.me/255693469723" target="_blank" class="cta-btn">Message on WhatsApp →</a>
+  </div>
+
+  <h2 class="section-title" id="categories">API Categories</h2>
+  <p class="section-sub">General capabilities available — exact endpoints and keys are shared privately upon request.</p>
+
+  <div class="cat-grid">
+    <div class="cat-card">
+      <div class="cat-badge">Payment</div>
+      <div class="cat-icon">💳</div>
+      <h3>Payment APIs</h3>
+      <p>Mobile money and card payment integrations for Tanzania and beyond.</p>
+      <ul>
+        <li><b>USSD Push</b> — M-Pesa, Tigo Pesa, Airtel Money</li>
+        <li><b>Payment status checks</b> — webhook + polling</li>
+        <li><b>Invoice generation</b> — TZS/USD support</li>
+      </ul>
+    </div>
+
+    <div class="cat-card social">
+      <div class="cat-badge">Social Media</div>
+      <div class="cat-icon">📥</div>
+      <h3>Social Media Download</h3>
+      <p>All-in-one media downloaders, no watermark.</p>
+      <ul>
+        <li><b>TikTok, Instagram, Facebook</b> — video/photo</li>
+        <li><b>YouTube</b> — MP3/MP4</li>
+        <li><b>Spotify, Netflix, Play Store</b> — search + metadata</li>
+      </ul>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-badge">AI</div>
+      <div class="cat-icon">🤖</div>
+      <h3>AI Tools</h3>
+      <p>Chat, image, and utility AI endpoints.</p>
+      <ul>
+        <li><b>AI Chat</b> — Groq / OpenRouter powered</li>
+        <li><b>Image Generation</b> — text-to-image</li>
+        <li><b>Remove Background</b> — instant, high quality</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title" id="guides">Guides</h2>
+  <p class="section-sub">General information — always confirm specifics with the official source before relying on them for anything official.</p>
+
+  <div class="guide-card">
+    <h3>🪪 NIDA Tanzania — How to Apply</h3>
+    <ol>
+      <li>Visit your nearest <b>NIDA registration center</b> (district or regional office) — locations are listed on the official NIDA website.</li>
+      <li>Bring an original ID document (birth certificate, voter's ID, or passport) plus a photocopy.</li>
+      <li>Complete the biometric registration (fingerprints + photo) on-site — there's no need to bring your own photo.</li>
+      <li>You'll receive a registration/application number — keep it safe, it's used to track your application status.</li>
+      <li>Processing can take from a few weeks to several months depending on center backlog — check status via NIDA's official channels using your application number.</li>
+    </ol>
+    <div class="guide-note">⚠️ This is general public information, not official NIDA guidance. Requirements and offices change — always verify with <b>nida.go.tz</b> or your local registration center directly.</div>
+  </div>
+
+  <div class="guide-card">
+    <h3>💰 Payment APIs in Tanzania — Overview</h3>
+    <ul>
+      <li><b>ClickPesa</b> — USSD Push for M-Pesa/Tigo Pesa/Airtel, webhook callbacks, HMAC-SHA256 request signing.</li>
+      <li><b>Selcom</b> — payment gateway supporting mobile money + cards, popular for e-commerce.</li>
+      <li><b>DPO Group (Direct Pay Online)</b> — regional gateway covering multiple East African payment methods.</li>
+      <li><b>Mobile Network Operator APIs</b> — direct integrations with M-Pesa (Vodacom), Tigo Pesa, and Airtel Money, each with their own developer portals and approval process.</li>
+    </ul>
+    <div class="guide-note">💡 Message the WhatsApp number above for help wiring any of these into your own bot or website.</div>
+  </div>
+
+</div>
+
+<footer>© <span id="year"></span> BMW LITE. For API access, message +255 693 469 723 on WhatsApp.</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

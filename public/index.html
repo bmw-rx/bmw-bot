@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW-LITE — WhatsApp Automation, Built to Run</title>
+<meta name="description" content="BMW-LITE is a fast, always-on WhatsApp assistant with 90+ commands, AI chat, and a live control dashboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d0c;
+    --bg-panel: #141716;
+    --bg-panel-2: #191d1c;
+    --line: #262b29;
+    --lime: #c8ff4d;
+    --lime-dim: #8fb83a;
+    --text: #ecf1ee;
+    --text-dim: rgba(255, 255, 255, 0.58); /* white + opacity, tinted for dark theme (Material Design guidance) instead of solid grey */
+    --red: #ff5c5c;
+    --amber: #ffb84d;
+    --violet: #b389ff;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(200,255,77,0.07), transparent 40%),
+      radial-gradient(circle at 90% 30%, rgba(179,137,255,0.05), transparent 45%);
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  header.nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11,13,12,0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.02em; }
+  .brand-mark {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+    color: #0b0d0c;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 17px;
+  }
+  .brand span { color: var(--lime); }
+
+  nav.links { display: flex; gap: 28px; font-size: 14px; color: var(--text-dim); }
+  nav.links a:hover { color: var(--text); }
+
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--lime);
+    color: #0b0d0c;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px 18px;
+    border-radius: 9px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(200,255,77,0.28); }
+
+  .nav-toggle { display: none; background: none; border: 1px solid var(--line); border-radius: 8px; color: var(--text); width: 38px; height: 38px; font-size: 16px; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 84px 0 60px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lime);
+    background: rgba(200,255,77,0.08);
+    border: 1px solid rgba(200,255,77,0.25);
+    padding: 6px 12px;
+    border-radius: 99px;
+    margin-bottom: 22px;
+  }
+  .eyebrow .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 8px var(--lime); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 48px;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+  .hero h1 .accent { color: var(--lime); }
+  .hero p.lead {
+    font-size: 16.5px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    max-width: 520px;
+    margin: 0 0 32px;
+  }
+
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14.5px;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--lime); color: #0b0d0c; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(200,255,77,0.3); }
+  .btn-ghost { background: transparent; border-color: var(--line); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--lime-dim); color: var(--lime); }
+
+  .hero-stats { display: flex; gap: 34px; flex-wrap: wrap; }
+  .hero-stat .n { font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 26px; color: var(--lime); }
+  .hero-stat .l { font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* ---------- SIGNATURE: LIVE TERMINAL CHAT DEMO ---------- */
+  .demo-frame {
+    position: relative;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .demo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-panel-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .demo-dots { display: flex; gap: 6px; }
+  .demo-dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .demo-title { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .demo-title .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 6px var(--lime); animation: pulse 1.6s infinite; }
+
+  .demo-body {
+    padding: 20px 18px;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .bubble { max-width: 82%; padding: 11px 14px; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.55; opacity: 0; transform: translateY(8px); animation: bubbleIn 0.4s ease-out forwards; }
+  @keyframes bubbleIn { to { opacity: 1; transform: translateY(0); } }
+  .bubble.user { align-self: flex-end; background: linear-gradient(135deg, var(--lime), var(--lime-dim)); color: #0b0d0c; border-bottom-right-radius: 3px; font-weight: 600; }
+  .bubble.bot { align-self: flex-start; background: var(--bg-panel-2); border: 1px solid var(--line); color: var(--text); border-bottom-left-radius: 3px; white-space: pre-wrap; }
+  .typing-indicator { align-self: flex-start; display: flex; gap: 4px; padding: 11px 14px; background: var(--bg-panel-2); border: 1px solid var(--line); border-radius: 12px; border-bottom-left-radius: 3px; }
+  .typing-indicator span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); animation: typingBounce 1s infinite; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  .demo-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-panel-2);
+  }
+  .demo-footer .fake-input { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
+  .demo-footer .send-dot { width: 30px; height: 30px; border-radius: 8px; background: var(--lime); display: flex; align-items: center; justify-content: center; color: #0b0d0c; font-weight: 800; font-size: 13px; }
+
+  /* ---------- STATS BAR ---------- */
+  .stats-bar {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 30px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .stat-cell { display: flex; align-items: center; gap: 12px; }
+  .stat-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(200,255,77,0.08); border: 1px solid rgba(200,255,77,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .stat-cell .n { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 21px; }
+  .stat-cell .l { font-size: 11.5px; color: var(--text-dim); }
+
+  /* ---------- SECTION HEADER ---------- */
+  .section { padding: 84px 0; }
+  .section-head { text-align: center; max-width: 620px; margin: 0 auto 52px; }
+  .section-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lime-dim); margin-bottom: 12px; }
+  .section-head h2 { font-family: 'Orbitron', sans-serif; font-size: 32px; font-weight: 700; margin: 0 0 14px; }
+  .section-head h2 .accent { color: var(--lime); }
+  .section-head p { color: var(--text-dim); font-size: 15px; line-height: 1.65; margin: 0; }
+
+  /* ---------- FEATURES GRID ---------- */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { border-color: var(--lime-dim); transform: translateY(-3px); }
+  .feature-icon { width: 44px; height: 44px; border-radius: 11px; background: rgba(200,255,77,0.09); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+  .feature-card h3 { font-size: 16.5px; margin: 0 0 8px; font-weight: 700; }
+  .feature-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  /* ---------- COMMANDS SHOWCASE ---------- */
+  .commands-tabs { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .cmd-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 9px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .cmd-tab.active, .cmd-tab:hover { border-color: var(--lime-dim); color: var(--lime); background: rgba(200,255,77,0.06); }
+
+  .cmd-panel { display: none; }
+  .cmd-panel.active { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cmd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .cmd-item .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--lime-dim); flex-shrink: 0; }
+  .cmd-item b { color: var(--lime); }
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-banner {
+    background: linear-gradient(135deg, rgba(200,255,77,0.1), rgba(179,137,255,0.06));
+    border: 1px solid rgba(200,255,77,0.22);
+    border-radius: 22px;
+    padding: 56px 40px;
+    text-align: center;
+  }
+  .cta-banner h2 { font-family: 'Orbitron', sans-serif; font-size: 28px; margin: 0 0 12px; }
+  .cta-banner p { color: var(--text-dim); font-size: 15px; margin: 0 0 28px; }
+  .cta-code {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--lime);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-top: 18px;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer { border-top: 1px solid var(--line); padding: 40px 0 30px; }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-brand { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 15px; }
+  footer .fine { font-size: 12px; color: var(--text-dim); }
+  .footer-links { display: flex; gap: 20px; font-size: 13px; color: var(--text-dim); }
+  .footer-links a:hover { color: var(--lime); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    nav.links, .hero-stats .hero-stat:nth-child(n+3) { display: none; }
+    .nav-toggle { display: block; }
+    .hero { grid-template-columns: 1fr; padding-top: 52px; }
+    .hero h1 { font-size: 34px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr; }
+    .cmd-panel.active { grid-template-columns: 1fr; }
+    .section { padding: 56px 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><div class="brand-mark">B</div>BMW<span>-LITE</span></div>
+    <nav class="links">
+      <a href="#features">Features</a>
+      <a href="#commands">Commands</a>
+      <a href="/marketplace.html">API Marketplace</a>
+      <a href="#get-started">Get Started</a>
+    </nav>
+    <a href="/login.html" class="nav-cta">Open Dashboard →</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow"><span class="pulse-dot"></span> Online &amp; Answering Right Now</div>
+      <h1>Your WhatsApp,<br>Running on <span class="accent">Autopilot</span>.</h1>
+      <p class="lead">BMW-LITE replies to your customers, downloads media, manages your groups, and chats with AI — all inside WhatsApp, all day, every day.</p>
+      <div class="hero-ctas">
+        <a href="/login.html" class="btn btn-primary" id="heroPairBtn">Pair Your Number →</a>
+        <a href="#commands" class="btn btn-ghost">Browse Commands</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="n" id="statCommands">90+</div><div class="l">Commands</div></div>
+        <div class="hero-stat"><div class="n">24/7</div><div class="l">Always On</div></div>
+        <div class="hero-stat"><div class="n">&lt;1s</div><div class="l">Reply Speed</div></div>
+      </div>
+    </div>
+
+    <!-- SIGNATURE ELEMENT: live typing chat demo -->
+    <div class="demo-frame">
+      <div class="demo-topbar">
+        <div class="demo-dots"><span></span><span></span><span></span></div>
+        <div class="demo-title"><span class="live-dot"></span>BMW-LITE · live demo</div>
+      </div>
+      <div class="demo-body" id="demoBody"></div>
+      <div class="demo-footer">
+        <div class="fake-input" id="fakeInputText">Type a message</div>
+        <div class="send-dot">➤</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-cell"><div class="stat-icon">⚡</div><div><div class="n">&lt;1s</div><div class="l">Avg. response time</div></div></div>
+    <div class="stat-cell"><div class="stat-icon">🧩</div><div><div class="n">90+</div><div class="l">Built-in commands</div></div></div>
+    <div class="stat-cell"><div class="stat-icon">🔒</div><div><div class="n">Local</div><div class="l">Session, your server</div></div></div>
+    <div class="stat-cell"><div class="stat-icon">🛰️</div><div><div class="n">24/7</div><div class="l">Uptime target</div></div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-head">
+      <div class="section-eyebrow">Why BMW-LITE</div>
+      <h2>Built to <span class="accent">actually stay online.</span></h2>
+      <p>Every feature exists to solve one problem: a bot that goes quiet is worse than no bot at all.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Replies</h3>
+        <p>Commands resolve in under a second — no waiting, no queue, even during peak traffic.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Chat Mode</h3>
+        <p>Switch on Chatbot Mode and let AI hold real conversations in your DMs, with a personality you control.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Group Protection</h3>
+        <p>Anti-link, anti-delete, auto-warn, and admin tools keep your communities clean without babysitting.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📥</div>
+        <h3>All-in-One Downloader</h3>
+        <p>TikTok, Instagram, YouTube, Spotify — paste a link, get the file, no third-party apps.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎛️</div>
+        <h3>Live Control Panel</h3>
+        <p>Toggle features, watch logs in real time, and back up your session — all from your browser.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <h3>Session Backup</h3>
+        <p>Download or restore your WhatsApp session in one click. Never re-pair from scratch again.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMANDS SHOWCASE -->
+  <section class="section" id="commands">
+    <div class="section-head">
+      <div class="section-eyebrow">The Command Set</div>
+      <h2>Type a dot, get it <span class="accent">done.</span></h2>
+      <p>A sample of what's inside — organized by what you're actually trying to do.</p>
+    </div>
+
+    <div class="commands-tabs">
+      <button class="cmd-tab active" data-tab="downloader">Downloader</button>
+      <button class="cmd-tab" data-tab="group">Group Tools</button>
+      <button class="cmd-tab" data-tab="ai">AI &amp; Fun</button>
+      <button class="cmd-tab" data-tab="owner">Owner Tools</button>
+    </div>
+
+    <div class="cmd-panel active" data-panel="downloader">
+      <div class="cmd-item"><span class="dot"></span><b>.tiktok</b> — video, no watermark</div>
+      <div class="cmd-item"><span class="dot"></span><b>.ig</b> — Instagram reels &amp; posts</div>
+      <div class="cmd-item"><span class="dot"></span><b>.ytmp3</b> — YouTube to audio</div>
+      <div class="cmd-item"><span class="dot"></span><b>.ytmp4</b> — YouTube to video</div>
+      <div class="cmd-item"><span class="dot"></span><b>.spotify</b> — track downloader</div>
+      <div class="cmd-item"><span class="dot"></span><b>.fb</b> — Facebook video saver</div>
+      <div class="cmd-item"><span class="dot"></span><b>.aio</b> — all-in-one link resolver</div>
+      <div class="cmd-item"><span class="dot"></span><b>.play</b> — search &amp; send audio</div>
+      <div class="cmd-item"><span class="dot"></span><b>.gdrive</b> — Google Drive links</div>
+    </div>
+
+    <div class="cmd-panel" data-panel="group">
+      <div class="cmd-item"><span class="dot"></span><b>.tagall</b> — mention every member</div>
+      <div class="cmd-item"><span class="dot"></span><b>.hidetag</b> — silent mention-all</div>
+      <div class="cmd-item"><span class="dot"></span><b>.kick</b> / <b>.promote</b> — admin actions</div>
+      <div class="cmd-item"><span class="dot"></span><b>.antilink</b> — auto-remove links</div>
+      <div class="cmd-item"><span class="dot"></span><b>.antidelete</b> — catch deleted messages</div>
+      <div class="cmd-item"><span class="dot"></span><b>.welcome</b> / <b>.goodbye</b> — join/leave messages</div>
+      <div class="cmd-item"><span class="dot"></span><b>.warn</b> — track &amp; auto-kick</div>
+      <div class="cmd-item"><span class="dot"></span><b>.groupinfo</b> — full group summary</div>
+      <div class="cmd-item"><span class="dot"></span><b>.revoke</b> — reset invite link</div>
+    </div>
+
+    <div class="cmd-panel" data-panel="ai">
+      <div class="cmd-item"><span class="dot"></span><b>.ai</b> — ask anything</div>
+      <div class="cmd-item"><span class="dot"></span><b>.imagine</b> — AI image generation</div>
+      <div class="cmd-item"><span class="dot"></span><b>.aiimg</b> — image analysis</div>
+      <div class="cmd-item"><span class="dot"></span><b>.emojimix</b> — combine two emoji</div>
+      <div class="cmd-item"><span class="dot"></span><b>.sticker</b> — media to sticker</div>
+      <div class="cmd-item"><span class="dot"></span><b>.trivia</b> — quiz game</div>
+      <div class="cmd-item"><span class="dot"></span><b>.wasted</b> — GTA-style overlay</div>
+      <div class="cmd-item"><span class="dot"></span><b>.fancy</b> — stylized text</div>
+      <div class="cmd-item"><span class="dot"></span><b>.jokes</b> — random joke</div>
+    </div>
+
+    <div class="cmd-panel" data-panel="owner">
+      <div class="cmd-item"><span class="dot"></span><b>.mode</b> — public / private switch</div>
+      <div class="cmd-item"><span class="dot"></span><b>.setprefix</b> — change command prefix</div>
+      <div class="cmd-item"><span class="dot"></span><b>.setbotname</b> — rebrand your bot</div>
+      <div class="cmd-item"><span class="dot"></span><b>.autoread</b> — auto blue-tick</div>
+      <div class="cmd-item"><span class="dot"></span><b>.autostatusview</b> — auto status views</div>
+      <div class="cmd-item"><span class="dot"></span><b>.pairme</b> — link a second number</div>
+      <div class="cmd-item"><span class="dot"></span><b>.mysessions</b> — active devices</div>
+      <div class="cmd-item"><span class="dot"></span><b>.update</b> — pull latest version</div>
+      <div class="cmd-item"><span class="dot"></span><b>.getsettings</b> — current config dump</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" id="get-started">
+    <div class="cta-banner">
+      <h2>Pair your number in under a minute.</h2>
+      <p>No app to install. Open the dashboard, enter your number, and link it from WhatsApp.</p>
+      <a href="/login.html" class="btn btn-primary">Open the Dashboard →</a>
+      <div><span class="cta-code">Pairing code: BMWLITE1</span></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-brand"><div class="brand-mark" style="width:28px;height:28px;font-size:14px;">B</div>BMW-LITE</div>
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#commands">Commands</a>
+      <a href="/login.html">Dashboard</a>
+      <a href="/marketplace.html">API Marketplace</a>
+    </div>
+    <div class="fine">© <span id="year"></span> BMW-LITE. Built on Baileys.</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- Commands tabs ----------
+  const tabs = document.querySelectorAll('.cmd-tab');
+  const panels = document.querySelectorAll('.cmd-panel');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      panels.forEach((p) => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector(`.cmd-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  // ---------- SIGNATURE: live typing chat demo ----------
+  const demoBody = document.getElementById('demoBody');
+  const fakeInput = document.getElementById('fakeInputText');
+
+  const script = [
+    { from: 'user', text: '.menu' },
+    { from: 'bot', text: 'BMW-LITE ONLINE ✅\n90+ commands ready.\nType .help <command> for details.' },
+    { from: 'user', text: '.tiktok https://tiktok.com/...' },
+    { from: 'bot', text: 'Downloading — no watermark…\nDone in 0.8s ⚡' },
+    { from: 'user', text: '.ai what\'s the weather like for outdoor plans?' },
+    { from: 'bot', text: 'Sunny and mild — good day to be outside 🌤️' },
+  ];
+
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  function addBubble(from, text) {
+    const div = document.createElement('div');
+    div.className = 'bubble ' + from;
+    div.textContent = text;
+    demoBody.appendChild(div);
+    while (demoBody.children.length > 5) demoBody.removeChild(demoBody.firstChild);
+    demoBody.scrollTop = demoBody.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'typing-indicator';
+    div.id = 'typingNow';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    demoBody.appendChild(div);
+    demoBody.scrollTop = demoBody.scrollHeight;
+  }
+  function removeTypingIndicator() {
+    const el = document.getElementById('typingNow');
+    if (el) el.remove();
+  }
+
+  async function typeIntoInput(text) {
+    fakeInput.textContent = '';
+    fakeInput.style.color = 'var(--text)';
+    for (let i = 0; i <= text.length; i++) {
+      fakeInput.textContent = text.slice(0, i);
+      await sleep(28);
+    }
+    await sleep(350);
+  }
+
+  async function runDemoLoop() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      script.forEach((m) => addBubble(m.from, m.text));
+      return;
+    }
+    while (true) {
+      for (const msg of script) {
+        if (msg.from === 'user') {
+          await typeIntoInput(msg.text);
+          addBubble('user', msg.text);
+          fakeInput.textContent = 'Type a message';
+          fakeInput.style.color = 'var(--text-dim)';
+          await sleep(500);
+          addTypingIndicator();
+          await sleep(900 + Math.random() * 500);
+          removeTypingIndicator();
+        } else {
+          addBubble('bot', msg.text);
+          await sleep(1400);
+        }
+      }
+      await sleep(2200);
+      demoBody.innerHTML = '';
+    }
+  }
+  runDemoLoop();
+
+  // ---------- Nav mobile toggle (simple show/hide) ----------
+  // (Nav collapses via CSS breakpoint; links remain reachable through anchors on mobile scroll.)
+</script>
+</body>
+</html>

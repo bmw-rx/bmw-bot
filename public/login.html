@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — BMW LITE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d0c; --bg-panel: #141716; --line: #262b29;
+    --lime: #c8ff4d; --lime-dim: #8fb83a; --text: #ecf1ee; --text-dim: rgba(255, 255, 255, 0.58); /* white + opacity, tinted for dark theme (Material Design guidance) instead of solid grey */ --red: #ff5c5c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg);
+    background-image: radial-gradient(circle at 15% 10%, rgba(200,255,77,0.08), transparent 45%), radial-gradient(circle at 85% 85%, rgba(200,255,77,0.06), transparent 45%);
+    color: var(--text); font-family: 'Space Grotesk', sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card { width: 100%; max-width: 380px; background: var(--bg-panel); border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; justify-content: center; }
+  .brand-mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--lime), var(--lime-dim)); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 800; color: #0b0d0c; }
+  .brand-text { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 16px; }
+  .brand-text span { color: var(--lime); }
+  h1 { font-size: 20px; text-align: center; margin: 0 0 6px; }
+  .sub { text-align: center; color: var(--text-dim); font-size: 13px; margin: 0 0 26px; }
+  label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  input {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+    padding: 12px 14px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    outline: none; margin-bottom: 16px; transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--lime-dim); }
+  button {
+    width: 100%; padding: 13px; border-radius: 10px; border: none;
+    background: var(--lime); color: #0b0d0c; font-weight: 700; font-size: 14.5px; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  button:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,255,77,0.3); }
+  button:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+  .error-box { display: none; background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.35); color: #ff8080; padding: 10px 12px; border-radius: 8px; font-size: 12.5px; margin-bottom: 14px; }
+  .switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-dim); }
+  .switch a { color: var(--lime); text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><div class="brand-mark">B</div><div class="brand-text">BMW <span>LITE</span></div></div>
+  <h1>Welcome back</h1>
+  <p class="sub">Log in to access your dashboard</p>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="you@example.com">
+  <label for="password">Password</label>
+  <input type="password" id="password" placeholder="••••••••">
+
+  <button id="loginBtn">Log In</button>
+  <div class="switch">Don't have an account? <a href="/signup.html">Sign up</a></div>
+</div>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const errorBox = $('#errorBox');
+  const loginBtn = $('#loginBtn');
+  function showError(msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; }
+
+  loginBtn.addEventListener('click', async () => {
+    errorBox.style.display = 'none';
+    const email = $('#email').value.trim();
+    const password = $('#password').value;
+    if (!email || !password) return showError('Enter your email and password.');
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Logging in...';
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.href = '/panel.html';
+      } else {
+        showError(data.error || 'Login failed.');
+        loginBtn.disabled = false; loginBtn.textContent = 'Log In';
+      }
+    } catch (e) {
+      showError('Could not reach the server.');
+      loginBtn.disabled = false; loginBtn.textContent = 'Log In';
+    }
+  });
+  ['email', 'password'].forEach((id) => $('#' + id).addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); }));
+</script>
+</body>
+</html>
