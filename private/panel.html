@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMW LITE — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d0c;
+    --bg-panel: #141716;
+    --bg-panel-2: #191d1c;
+    --line: #262b29;
+    --lime: #c8ff4d;
+    --lime-dim: #8fb83a;
+    --text: #ecf1ee;
+    --text-dim: rgba(255, 255, 255, 0.58); /* white + opacity, tinted for dark theme (Material Design guidance) instead of solid grey */
+    --red: #ff5c5c;
+    --amber: #ffb84d;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(200,255,77,0.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(200,255,77,0.05), transparent 45%);
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---------- ANIMATED TECH BACKGROUND ---------- */
+  #bgCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(200,255,77,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,255,77,0.035) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-position: center;
+    -webkit-mask-image: radial-gradient(circle at 50% 0%, black, transparent 75%);
+    mask-image: radial-gradient(circle at 50% 0%, black, transparent 75%);
+    animation: gridDrift 18s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 34px 34px, 34px 34px; }
+  }
+
+  .scanline {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 120px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(200,255,77,0.05), transparent);
+    animation: scanMove 6s ease-in-out infinite;
+  }
+
+  @keyframes scanMove {
+    0% { top: -120px; }
+    50% { top: 100vh; }
+    100% { top: -120px; }
+  }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 18px 60px;
+    position: relative;
+    z-index: 2;
+  }
+
+  @keyframes riseIn {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .header {
+    animation: riseIn 0.5s ease-out both;
+  }
+
+  .badge {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--lime), var(--lime-dim));
+    background-size: 200% 200%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #0b0d0c;
+    flex-shrink: 0;
+    box-shadow: 0 0 24px rgba(200,255,77,0.3), 0 0 0 1px rgba(200,255,77,0.15);
+    animation: badgeGlow 3s ease-in-out infinite;
+  }
+
+  .badge::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 13px;
+    border: 1px solid rgba(200,255,77,0.35);
+    animation: ringPulse 2.4s ease-out infinite;
+  }
+
+  @keyframes badgeGlow {
+    0%, 100% { background-position: 0% 50%; box-shadow: 0 0 24px rgba(200,255,77,0.3), 0 0 0 1px rgba(200,255,77,0.15); }
+    50% { background-position: 100% 50%; box-shadow: 0 0 34px rgba(200,255,77,0.5), 0 0 0 1px rgba(200,255,77,0.25); }
+  }
+
+  @keyframes ringPulse {
+    0% { transform: scale(0.9); opacity: 0.9; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+
+  .header h1 {
+    font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    margin: 0;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--text) 0%, var(--lime) 50%, var(--text) 100%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textSheen 5s linear infinite;
+  }
+
+  @keyframes textSheen {
+    0% { background-position: 0% center; }
+    100% { background-position: -220% center; }
+  }
+
+  .header .sub {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- STATUS STRIP ---------- */
+  .status-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    animation: riseIn 0.5s ease-out 0.08s both;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .dot {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .dot::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0;
+  }
+
+  .dot.connected { background: var(--lime); color: var(--lime); box-shadow: 0 0 10px rgba(200,255,77,0.7); }
+  .dot.connected::before { animation: ringPulse 1.8s ease-out infinite; }
+  .dot.pending { background: var(--amber); color: var(--amber); box-shadow: 0 0 10px rgba(255,184,77,0.6); animation: pulse 1.4s infinite; }
+  .dot.pending::before { animation: ringPulse 1s ease-out infinite; }
+  .dot.off { background: var(--red); box-shadow: 0 0 6px rgba(255,92,92,0.4); }
+
+  .status-strip:has(.dot.connected) { border-color: rgba(200,255,77,0.3); box-shadow: 0 0 18px rgba(200,255,77,0.08); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .status-text { font-size: 13.5px; }
+  .status-text .label { color: var(--text-dim); font-size: 11px; display: block; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1px; }
+
+  /* ---------- CARD ---------- */
+  .card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: riseIn 0.55s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.08s + 0.12s);
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  }
+
+  .card:hover {
+    border-color: rgba(200,255,77,0.28);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(200,255,77,0.06);
+    transform: translateY(-2px);
+  }
+
+  .stat-row { margin-bottom: 16px; }
+  .stat-row:last-of-type { margin-bottom: 10px; }
+
+  .stat-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .stat-label .mono { color: var(--lime); font-weight: 600; }
+
+  .stat-bar {
+    height: 7px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--lime-dim), var(--lime));
+    box-shadow: 0 0 10px rgba(200,255,77,0.5);
+    transition: width 0.6s ease-out;
+  }
+
+  .stat-bar-fill.warn { background: linear-gradient(90deg, #b58a1f, var(--amber)); box-shadow: 0 0 10px rgba(255,184,77,0.5); }
+  .stat-bar-fill.danger { background: linear-gradient(90deg, #a13b3b, var(--red)); box-shadow: 0 0 10px rgba(255,92,92,0.5); }
+
+  .stat-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    line-height: 1.7;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--lime);
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card h2::before {
+    content: '';
+    width: 3px;
+    height: 13px;
+    background: var(--lime);
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  label.field-label {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, input[type="number"]:focus { border-color: var(--lime-dim); }
+  input[type="text"]::placeholder, input[type="number"]::placeholder { color: #4d5450; }
+
+  /* ---------- COUNTRY CODE + NUMBER SPLIT ---------- */
+  .phone-row { display: flex; gap: 8px; }
+  select#countryCode {
+    flex: 0 0 108px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    outline: none;
+  }
+  select#countryCode:focus { border-color: var(--lime-dim); }
+  .phone-row input[type="text"] { flex: 1; }
+
+  /* ---------- CUSTOM CODE CHECKBOX ---------- */
+  .custom-code-toggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+  .custom-code-toggle input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--lime);
+    cursor: pointer;
+  }
+  #customCodeWrap { margin-top: 10px; display: none; }
+  #customCodeWrap input { text-transform: uppercase; letter-spacing: 0.1em; }
+  #customCodeWrap .hint-small { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+  /* ---------- CONNECTED IDENTITY CARD ---------- */
+  .identity-card {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg-panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 14px;
+  }
+  .identity-avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--lime-dim);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--lime);
+  }
+  .identity-info .name { font-weight: 700; font-size: 14.5px; }
+  .identity-info .sub { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--lime-dim); }
+  textarea::placeholder { color: #4d5450; }
+
+  button {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin-top: 12px;
+    background: var(--lime);
+    color: #0b0d0c;
+    border: none;
+    border-radius: 9px;
+    padding: 13px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform 0.08s, opacity 0.2s, box-shadow 0.2s;
+  }
+
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform: skewX(-20deg);
+    animation: btnSheen 2.6s ease-in-out infinite;
+  }
+
+  @keyframes btnSheen {
+    0% { left: -60%; }
+    45%, 100% { left: 130%; }
+  }
+
+  button:active { transform: scale(0.98); }
+  button:hover:not(:disabled) { box-shadow: 0 0 20px rgba(200,255,77,0.35); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  button:disabled::before { display: none; }
+
+  .hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .error-box {
+    background: rgba(255,92,92,0.08);
+    border: 1px solid rgba(255,92,92,0.35);
+    color: var(--red);
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 12.5px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .success-box {
+    background: rgba(200,255,77,0.08);
+    border: 1px solid rgba(200,255,77,0.35);
+    color: var(--lime);
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 12.5px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ---------- PAIRING CODE DISPLAY ---------- */
+  .pairing-result {
+    display: none;
+    margin-top: 16px;
+    text-align: center;
+    padding: 22px 14px;
+    background: var(--bg);
+    border: 1px dashed var(--lime-dim);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    animation: riseIn 0.4s ease-out both, borderGlow 2.4s ease-in-out infinite;
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { box-shadow: 0 0 0 rgba(200,255,77,0); }
+    50% { box-shadow: 0 0 18px rgba(200,255,77,0.15) inset; }
+  }
+
+  .pairing-result .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--lime);
+    margin-bottom: 6px;
+    text-shadow: 0 0 16px rgba(200,255,77,0.5);
+    animation: codeFlicker 0.6s ease-out both;
+  }
+
+  /* ---------- SEGMENTED PAIRING CODE (redesign) ---------- */
+  .code-segments {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .code-seg {
+    width: 34px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(200,255,77,0.08), rgba(200,255,77,0.02));
+    border: 1px solid var(--lime-dim);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--lime);
+    text-shadow: 0 0 12px rgba(200,255,77,0.5);
+    opacity: 0;
+    transform: translateY(6px) scale(0.85);
+    animation: segPop 0.35s ease-out forwards;
+  }
+  .code-seg.gap { background: transparent; border: none; width: 8px; }
+  @keyframes segPop {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes codeFlicker {
+    0% { opacity: 0; filter: blur(4px); letter-spacing: 0.4em; }
+    60% { opacity: 1; filter: blur(0.5px); }
+    100% { opacity: 1; filter: blur(0); letter-spacing: 0.12em; }
+  }
+
+  .pairing-result .steps {
+    text-align: left;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    line-height: 1.7;
+  }
+
+  .pairing-result .steps b { color: var(--text); }
+
+  /* ---------- LIVE HEALTH CHECK ---------- */
+  .health-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px 16px;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .health-left { display: flex; align-items: center; gap: 9px; }
+  .health-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text-dim);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .health-dot.good { background: var(--lime); box-shadow: 0 0 8px rgba(200,255,77,0.7); }
+  .health-dot.ok { background: var(--amber); box-shadow: 0 0 8px rgba(255,184,77,0.6); }
+  .health-dot.bad { background: var(--red); box-shadow: 0 0 8px rgba(255,92,92,0.6); }
+  .health-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .health-value { font-size: 12.5px; color: var(--text); font-weight: 600; }
+  .health-right { text-align: right; font-size: 10px; color: var(--text-dim); }
+
+  /* ---------- CONFETTI ---------- */
+  #confettiCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ---------- CONNECTED DEVICES ---------- */
+  .device-item {
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .device-info {
+    flex: 1;
+  }
+
+  .device-phone {
+    font-weight: 600;
+    color: var(--lime);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .device-status {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .device-status.online { color: var(--lime); }
+
+  /* ---------- TOGGLE LIST ---------- */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-row .name { font-size: 14px; }
+  .toggle-row .desc { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 25px;
+    flex-shrink: 0;
+  }
+
+  .switch input { opacity: 0; width: 0; height: 0; }
+
+  .switch .track {
+    position: absolute;
+    inset: 0;
+    background: var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .switch .track::before {
+    content: '';
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    left: 3px;
+    top: 3px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .switch input:checked + .track { background: rgba(200,255,77,0.18); }
+  .switch input:checked + .track::before { transform: translateX(19px); background: var(--lime); box-shadow: 0 0 10px rgba(200,255,77,0.7); }
+  .switch .track::before { transition: transform 0.25s cubic-bezier(.4,1.6,.4,1), background 0.2s, box-shadow 0.2s; }
+
+  /* ---------- FOOTER ---------- */
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+
+  .footer a { color: var(--lime-dim); text-decoration: none; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(11,13,12,0.25);
+    border-top-color: #0b0d0c;
+    border-right-color: rgba(11,13,12,0.6);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: -2px;
+    margin-right: 7px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer {
+    animation: riseIn 0.5s ease-out 0.4s both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot.pending, .dot.connected::before, .badge, .badge::after, .header h1,
+    .spinner, .card, .status-strip, .footer, .pairing-result, .pairing-result .code,
+    .grid-overlay, .scanline, button::before {
+      animation: none !important;
+    }
+  }
+
+  /* ---------- PREMIUM CARD ---------- */
+  .premium-locked {
+    text-align: center;
+    padding: 18px 10px 6px;
+  }
+  .premium-locked .lock-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.85; }
+  .premium-locked p { color: var(--text-dim); font-size: 12.5px; margin: 0 0 14px; }
+  .premium-locked input {
+    max-width: 220px;
+    margin: 0 auto 12px;
+    text-align: center;
+    letter-spacing: 4px;
+  }
+  .premium-locked button { max-width: 220px; margin: 0 auto; }
+  .premium-badge {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0b0d0c;
+    background: var(--lime);
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .premium-field { margin-bottom: 16px; }
+  .premium-field:last-child { margin-bottom: 0; }
+  .premium-field .field-row { display: flex; gap: 8px; }
+  .premium-field .field-row input { flex: 1; }
+  .premium-field .field-row button { width: auto; margin-top: 0; padding: 0 16px; white-space: nowrap; }
+  .premium-danger {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .premium-danger button {
+    background: transparent;
+    border: 1px solid #ff5d5d;
+    color: #ff5d5d;
+  }
+  .log-viewer {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 10px 12px;
+    height: 220px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .log-line { white-space: pre-wrap; word-break: break-word; margin-bottom: 2px; }
+  .log-line.lvl-error { color: #ff5d5d; }
+  .log-line.lvl-warn { color: #ffcf5d; }
+  .log-line.lvl-success { color: var(--lime); }
+  .log-line.lvl-cmd { color: #b389ff; }
+  .log-line.lvl-info { color: var(--text-dim); }
+  .log-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .log-controls button { width: auto; margin: 0; padding: 6px 12px; font-size: 12px; }
+  .cooldown-list { margin-top: 10px; }
+  .cooldown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+  }
+  .cooldown-item button {
+    width: auto;
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 11px;
+    background: transparent;
+    border: 1px solid #ff5d5d;
+    color: #ff5d5d;
+  }
+  .file-upload-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .file-upload-row input[type="file"] {
+    flex: 1;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .file-upload-row button { width: auto; margin: 0; padding: 0 16px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
+<div class="grid-overlay"></div>
+<div class="scanline"></div>
+<div class="wrap">
+
+  <div class="header">
+    <div class="badge">B</div>
+    <div>
+      <h1 id="botNameHeading">BMW LITE</h1>
+      <div class="sub">Bot Dashboard</div>
+    </div>
+    <button id="accountLogoutBtn" style="margin-left:auto;width:auto;padding:8px 16px;font-size:12px;background:transparent;border:1px solid var(--line);color:var(--text-dim);">Log Out</button>
+  </div>
+
+  <div class="status-strip">
+    <div class="dot off" id="statusDot"></div>
+    <div class="status-text">
+      <span class="label">Connection Status</span>
+      <span id="statusLabel" class="mono">Loading...</span>
+    </div>
+  </div>
+
+  <!-- LIVE HEALTH CHECK -->
+  <div class="health-strip">
+    <div class="health-left">
+      <div class="health-dot" id="healthDot"></div>
+      <div>
+        <div class="health-label">Live Server Health</div>
+        <div class="health-value" id="healthValue">Checking…</div>
+      </div>
+    </div>
+    <div class="health-right" id="healthLastChecked">--</div>
+  </div>
+
+  <!-- SYSTEM STATS CARD -->
+  <div class="card" id="statsCard" style="--i:0;">
+    <h2>Server Stats</h2>
+
+    <div class="stat-row">
+      <div class="stat-label">
+        <span>⚙️ CPU</span>
+        <span class="mono" id="cpuValue">--%</span>
+      </div>
+      <div class="stat-bar"><div class="stat-bar-fill" id="cpuBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-label">
+        <span>🧠 RAM (bot process)</span>
+        <span class="mono" id="ramValue">-- MB</span>
+      </div>
+      <div class="stat-bar"><div class="stat-bar-fill" id="ramBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="stat-meta mono" id="statsMeta">Loading server stats…</div>
+  </div>
+
+  <!-- PAIRING CARD -->
+  <div class="card" id="pairingCard" style="--i:1;">
+    <h2>Connect WhatsApp</h2>
+    <label class="field-label" for="phoneInput">WhatsApp Phone Number</label>
+    <div class="phone-row">
+      <select id="countryCode">
+        <option value="255">🇹🇿 +255</option>
+        <option value="254">🇰🇪 +254</option>
+        <option value="256">🇺🇬 +256</option>
+        <option value="243">🇨🇩 +243</option>
+        <option value="250">🇷🇼 +250</option>
+        <option value="257">🇧🇮 +257</option>
+        <option value="260">🇿🇲 +260</option>
+        <option value="265">🇲🇼 +265</option>
+        <option value="27">🇿🇦 +27</option>
+        <option value="234">🇳🇬 +234</option>
+        <option value="233">🇬🇭 +233</option>
+        <option value="1">🇺🇸 +1</option>
+        <option value="44">🇬🇧 +44</option>
+        <option value="91">🇮🇳 +91</option>
+        <option value="other">🌐 Other</option>
+      </select>
+      <input type="text" id="phoneInput" inputmode="numeric" placeholder="743383943">
+    </div>
+
+    <label class="custom-code-toggle" for="useCustomCodeCheck">
+      <input type="checkbox" id="useCustomCodeCheck">
+      Use my own pairing code
+    </label>
+    <div id="customCodeWrap">
+      <input type="text" id="customCodeInput" inputmode="text" placeholder="MYCODE1" maxlength="8">
+      <div class="hint-small">Exactly 8 letters/numbers (e.g. your name + a digit).</div>
+    </div>
+
+    <button id="pairBtn" style="margin-top:14px;">Get Pairing Code</button>
+    <div class="error-box" id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+
+    <div class="pairing-result" id="pairingResult">
+      <div class="label" style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;">Your Pairing Code</div>
+      <div class="code-segments" id="codeSegments"></div>
+      <div class="code" id="codeDisplay" style="display:none;">----</div>
+      <div class="steps">
+        1. Open <b>WhatsApp</b> on your phone<br>
+        2. Go to <b>Settings → Linked Devices</b><br>
+        3. Tap <b>Link a Device</b><br>
+        4. Select <b>Link with phone number</b><br>
+        5. Enter the code above
+      </div>
+    </div>
+
+    <div class="hint" id="connectedHint" style="display:none;">
+      ✅ Bot is already connected. No need to pair again unless you logged out.
+    </div>
+
+    <!-- FEATURE: Connected Identity Card -->
+    <div class="identity-card" id="identityCard">
+      <div class="identity-avatar" id="identityAvatarWrap">?</div>
+      <div class="identity-info">
+        <div class="name" id="identityName">—</div>
+        <div class="sub" id="identityNumber">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTED DEVICES CARD -->
+  <div class="card" id="devicesCard" style="display:none; --i:2;">
+    <h2>Connected Devices</h2>
+    <div id="devicesList"></div>
+  </div>
+
+  <!-- BOT SETTINGS CARD -->
+  <div class="card" style="--i:3;">
+    <h2>Bot Settings</h2>
+
+    <label class="field-label" for="prefixInput">Prefix</label>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <input type="text" id="prefixInput" maxlength="3" placeholder="." style="flex:1;">
+      <button id="savePrefixBtn" style="width:auto;margin-top:0;padding:0 18px;">Save</button>
+    </div>
+
+    <label class="field-label" for="botNameInput">Bot Name</label>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="botNameInput" placeholder="BMW LITE" style="flex:1;">
+      <button id="saveBotNameBtn" style="width:auto;margin-top:0;padding:0 18px;">Save</button>
+    </div>
+  </div>
+
+  <!-- AUTO FEATURES CARD -->
+  <div class="card" style="--i:4;">
+    <h2>Auto Features</h2>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Auto Status View</div>
+        <div class="desc">Bot views user stories automatically</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="autoStatusView">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Auto Typing</div>
+        <div class="desc">Show "typing..." before replying</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="autoTyping">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Auto React Status</div>
+        <div class="desc">React automatically to stories</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="autoReactStatus">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Auto Read</div>
+        <div class="desc">Mark all messages as read (blue tick)</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="autoRead">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Chatbot Mode</div>
+        <div class="desc">Reply to all private messages with AI</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="chatbotMode">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Anti Link (Global)</div>
+        <div class="desc">Delete links in all groups (admin)</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="antiLink">
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="name">Anti Delete</div>
+        <div class="desc">Notify owner of deleted messages</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" data-key="antiDelete">
+        <span class="track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- PREMIUM FEATURES CARD -->
+  <div class="card" style="--i:5;">
+    <h2>Premium Features <span class="premium-badge">Premium</span></h2>
+
+    <div class="premium-locked" id="premiumLocked">
+      <div class="lock-icon">🔒</div>
+      <p>Enter the premium password to unlock these controls.</p>
+      <input type="password" id="premiumPasswordInput" inputmode="numeric" placeholder="••••" maxlength="20">
+      <button id="premiumUnlockBtn">Unlock</button>
+      <div class="error-box" id="premiumErrorBox"></div>
+    </div>
+
+    <div id="premiumUnlocked" style="display:none;">
+
+      <div class="premium-field">
+        <label class="field-label" for="premiumBotImage">Change Bot Image</label>
+        <div class="field-row">
+          <input type="text" id="premiumBotImage" placeholder="https://files.catbox.moe/example.jpg">
+          <button data-premium-save="bot-image">Save</button>
+        </div>
+      </div>
+
+      <div class="premium-field">
+        <label class="field-label" for="premiumBotSong">Change Bot Song</label>
+        <div class="field-row">
+          <input type="text" id="premiumBotSong" placeholder="https://files.catbox.moe/example.mp3">
+          <button data-premium-save="bot-song">Save</button>
+        </div>
+      </div>
+
+      <div class="premium-field">
+        <label class="field-label" for="premiumOwnerNumber">Change Owner Number</label>
+        <div class="field-row">
+          <input type="text" id="premiumOwnerNumber" inputmode="numeric" placeholder="255743383943">
+          <button data-premium-save="owner-number">Save</button>
+        </div>
+      </div>
+
+      <div class="premium-field">
+        <label class="field-label" for="premiumOnlineFooter">Custom Menu Footer Text</label>
+        <div class="field-row">
+          <input type="text" id="premiumOnlineFooter" placeholder="Powered by Baileys" maxlength="120">
+          <button data-premium-save="online-footer">Save</button>
+        </div>
+      </div>
+
+      <div class="premium-field">
+        <label class="field-label" for="premiumPairingCode">Custom Pairing Code (exactly 8 letters/numbers)</label>
+        <div class="field-row">
+          <input type="text" id="premiumPairingCode" placeholder="BMWLITE1" maxlength="8" style="text-transform:uppercase;">
+          <button data-premium-save="pairing-code">Save</button>
+        </div>
+        <div class="hint" style="margin-top:8px;">Shown to every user who pairs, instead of a random code.</div>
+      </div>
+
+      <!-- FEATURE 6: Command Toggle Panel -->
+      <div class="premium-field">
+        <label class="field-label" for="premiumDisabledCommands">Disable Commands (comma-separated)</label>
+        <div class="field-row">
+          <input type="text" id="premiumDisabledCommands" placeholder="tiktok, ig, fb">
+          <button id="premiumSaveDisabledBtn">Save</button>
+        </div>
+      </div>
+
+      <!-- FEATURE 9: Custom Welcome/Goodbye -->
+      <div class="premium-field">
+        <label class="field-label" for="premiumWelcomeMsg">Default Welcome Message</label>
+        <textarea id="premiumWelcomeMsg" placeholder="👋 Karibu @user kwenye *@group*!"></textarea>
+      </div>
+      <div class="premium-field">
+        <label class="field-label" for="premiumGoodbyeMsg">Default Goodbye Message</label>
+        <textarea id="premiumGoodbyeMsg" placeholder="👋 @user ametuacha. Kwaheri!"></textarea>
+        <button id="premiumSaveWelcomeGoodbyeBtn" style="margin-top:10px;">Save</button>
+      </div>
+
+      <!-- FEATURE 12: AI Personality Editor -->
+      <div class="premium-field">
+        <label class="field-label" for="premiumAiPrompt">AI Personality (Chatbot Mode system prompt)</label>
+        <textarea id="premiumAiPrompt" placeholder="You are a helpful assistant." maxlength="2000"></textarea>
+        <button id="premiumSaveAiPromptBtn" style="margin-top:10px;">Save</button>
+      </div>
+
+      <!-- BONUS: Command Cooldown / Rate Limiter -->
+      <div class="premium-field">
+        <label class="field-label">Command Cooldown (Rate Limiter)</label>
+        <div class="field-row">
+          <input type="text" id="premiumCooldownCmd" placeholder="tiktok" style="flex:1.2;">
+          <input type="number" id="premiumCooldownSecs" placeholder="seconds" min="0" style="flex:0.8;">
+          <button id="premiumAddCooldownBtn">Add</button>
+        </div>
+        <div class="cooldown-list" id="cooldownList"></div>
+      </div>
+
+      <!-- FEATURE 7: Live Logs Viewer -->
+      <div class="premium-field">
+        <label class="field-label">Live Logs</label>
+        <div class="log-controls">
+          <span style="font-size:11px;color:var(--text-dim);" id="logStatusLabel">Paused</span>
+          <button id="premiumLogsToggleBtn">Start Live Logs</button>
+        </div>
+        <div class="log-viewer" id="logViewer"></div>
+      </div>
+
+      <!-- FEATURE 17: Backup & Restore Session -->
+      <div class="premium-field">
+        <label class="field-label">Backup Session</label>
+        <button id="premiumBackupBtn">Download Session Backup (.zip)</button>
+      </div>
+      <div class="premium-field">
+        <label class="field-label" for="premiumRestoreFile">Restore Session (.zip)</label>
+        <div class="file-upload-row">
+          <input type="file" id="premiumRestoreFile" accept=".zip">
+          <button id="premiumRestoreBtn">Restore</button>
+        </div>
+        <div class="hint" style="margin-top:8px;">⚠️ This replaces the current session completely. Restart the bot after restoring.</div>
+      </div>
+
+      <div class="success-box" id="premiumSuccessBox"></div>
+      <div class="error-box" id="premiumActionErrorBox"></div>
+
+      <div class="premium-danger">
+        <label class="field-label">Logout Bot Session</label>
+        <button id="premiumLogoutBtn">Force Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: Device & Location (Login Activity / Security) -->
+  <div class="card" style="--i:6;">
+    <h2>🌍 Login Activity</h2>
+    <div class="hint" style="margin-bottom:14px;">Recent logins to your BMW LITE account — device, IP, and approximate location.</div>
+    <div id="loginHistoryList" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);">Loading...</div>
+  </div>
+
+  <!-- FEATURE: API Key Licensing ("BMW Bot Zip") -->
+  <div class="card" style="--i:7;">
+    <h2>🔑 API Keys — BMW Bot Zip</h2>
+    <div class="hint" style="margin-bottom:14px;">Generate a licensed download link for a customer. Their copy phones home to verify the key and auto-expires.</div>
+
+    <label class="field-label" for="licenseLabel">Label (e.g. customer name)</label>
+    <input type="text" id="licenseLabel" placeholder="John's Bot">
+
+    <label class="field-label" for="licenseHours">Expires in (hours)</label>
+    <input type="number" id="licenseHours" value="40" min="1">
+
+    <label class="custom-code-toggle" for="licenseOwnerCheck" style="margin-top:0;">
+      <input type="checkbox" id="licenseOwnerCheck">
+      Owner key (never expires)
+    </label>
+
+    <button id="generateLicenseBtn" style="margin-top:14px;">Generate Key</button>
+    <div class="success-box" id="licenseSuccessBox" style="display:none;"></div>
+
+    <div id="licenseList" style="margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11.5px;"></div>
+  </div>
+
+  <div class="footer">
+    <span id="versionLabel" class="mono">v2.0.0</span> · Powered by Baileys<br>
+    <a id="channelLink" href="#" target="_blank" style="display:none;">📢 Join Channel</a>
+  </div>
+
+</div>
+
+<script>
+  /* ---------- TECH NETWORK BACKGROUND ---------- */
+  (function initBgCanvas() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = canvas.getContext('2d');
+    let w, h, nodes;
+
+    function resize() {
+      w = canvas.width = window.innerWidth * devicePixelRatio;
+      h = canvas.height = window.innerHeight * devicePixelRatio;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+    }
+
+    function makeNodes() {
+      const count = Math.min(46, Math.floor((window.innerWidth * window.innerHeight) / 24000));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.25 * devicePixelRatio,
+        vy: (Math.random() - 0.5) * 0.25 * devicePixelRatio,
+        r: (Math.random() * 1.4 + 0.6) * devicePixelRatio,
+      }));
+    }
+
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+      const linkDist = 130 * devicePixelRatio;
+
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < linkDist) {
+            ctx.strokeStyle = `rgba(200,255,77,${(1 - dist / linkDist) * 0.16})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const n of nodes) {
+        ctx.fillStyle = 'rgba(200,255,77,0.55)';
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    resize();
+    makeNodes();
+    requestAnimationFrame(step);
+    window.addEventListener('resize', () => { resize(); makeNodes(); });
+  })();
+
+  const $ = (sel) => document.querySelector(sel);
+
+  /**
+   * Fetch response inaweza kuwa tupu (server iliua connection katikati, au
+   * imezidiwa muda) - res.json() ikijaribu ku-parse tupu inatoa kosa
+   * lisiloeleweka ("Unexpected end of JSON input"). Hii helper inasoma
+   * maandishi kwanza, na ikiwa ni tupu au si JSON, inatoa ujumbe wa wazi.
+   */
+  async function safeJson(res) {
+    const raw = await res.text();
+    if (!raw) {
+      throw new Error(`Server sent an empty response (HTTP ${res.status}). It may have restarted or timed out - try again in a moment.`);
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      throw new Error(`Server sent an invalid response (HTTP ${res.status}). Try again in a moment.`);
+    }
+  }
+
+  const phoneInput = $('#phoneInput');
+  const countryCode = $('#countryCode');
+  const useCustomCodeCheck = $('#useCustomCodeCheck');
+  const customCodeWrap = $('#customCodeWrap');
+  const customCodeInput = $('#customCodeInput');
+  const pairBtn = $('#pairBtn');
+  const errorBox = $('#errorBox');
+  const successBox = $('#successBox');
+  const pairingResult = $('#pairingResult');
+  const codeDisplay = $('#codeDisplay');
+  const codeSegments = $('#codeSegments');
+
+  // ---------- Country code + number combined ----------
+  function getFullPhoneNumber() {
+    const cc = countryCode.value === 'other' ? '' : countryCode.value;
+    const local = phoneInput.value.replace(/[^0-9]/g, '');
+    return (cc + local).replace(/[^0-9]/g, '');
+  }
+
+  useCustomCodeCheck.addEventListener('change', () => {
+    customCodeWrap.style.display = useCustomCodeCheck.checked ? 'block' : 'none';
+  });
+  customCodeInput.addEventListener('input', () => {
+    customCodeInput.value = customCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  });
+
+  // ---------- UI REDESIGN: Segmented pairing code boxes ----------
+  function renderCodeSegments(code) {
+    codeDisplay.textContent = code; // kept in sync (hidden) for any legacy readers
+    codeSegments.innerHTML = '';
+    if (!code) return;
+    [...String(code)].forEach((ch, i) => {
+      const seg = document.createElement('div');
+      if (ch === '-') {
+        seg.className = 'code-seg gap';
+      } else {
+        seg.className = 'code-seg';
+        seg.textContent = ch;
+        seg.style.animationDelay = (i * 0.04) + 's';
+      }
+      codeSegments.appendChild(seg);
+    });
+  }
+  const connectedHint = $('#connectedHint');
+  const identityCard = $('#identityCard');
+  const identityAvatarWrap = $('#identityAvatarWrap');
+  const identityName = $('#identityName');
+  const identityNumber = $('#identityNumber');
+  const pairingCard = $('#pairingCard');
+  const statusDot = $('#statusDot');
+  const statusLabel = $('#statusLabel');
+  const devicesCard = $('#devicesCard');
+
+  // ---------- FEATURE: Connected Identity Card ----------
+  function renderIdentityCard(state) {
+    if (state.status !== 'connected') {
+      identityCard.style.display = 'none';
+      return;
+    }
+    identityCard.style.display = 'flex';
+    const name = state.profileName || 'Connected';
+    identityName.textContent = name;
+    identityNumber.textContent = state.pairingNumber ? '+' + state.pairingNumber : (mainOwnerNumber ? '+' + mainOwnerNumber : '');
+
+    if (state.profilePicUrl) {
+      identityAvatarWrap.style.backgroundImage = `url('${state.profilePicUrl}')`;
+      identityAvatarWrap.style.backgroundSize = 'cover';
+      identityAvatarWrap.style.backgroundPosition = 'center';
+      identityAvatarWrap.textContent = '';
+    } else {
+      identityAvatarWrap.style.backgroundImage = 'none';
+      identityAvatarWrap.textContent = (name || '?').trim().charAt(0).toUpperCase();
+    }
+  }
+
+  let polling = null;
+  let mainOwnerNumber = '';
+  let lastStatusState = null;
+  let hasCelebratedConnect = false;
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+    successBox.style.display = 'none';
+  }
+
+  function showSuccess(msg) {
+    successBox.textContent = msg;
+    successBox.style.display = 'block';
+    errorBox.style.display = 'none';
+  }
+
+  function hideError() {
+    errorBox.style.display = 'none';
+  }
+
+  function setStatusUI(state) {
+    lastStatusState = state;
+    if (state.ownerNumber) mainOwnerNumber = state.ownerNumber;
+
+    const map = {
+      disconnected: { dot: 'off', text: 'Disconnected' },
+      connecting: { dot: 'pending', text: 'Connecting...' },
+      waiting_for_code: { dot: 'pending', text: 'Waiting for Pairing Code' },
+      needs_number: { dot: 'off', text: 'Needs Phone Number' },
+      connected: { dot: 'connected', text: 'Connected ✓' },
+      logged_out: { dot: 'off', text: 'Logged Out' },
+    };
+    const info = map[state.status] || { dot: 'off', text: state.status };
+    statusDot.className = 'dot ' + info.dot;
+    statusLabel.textContent = info.text;
+
+    // Fire confetti once, the moment we transition INTO 'connected'.
+    if (state.status === 'connected' && !hasCelebratedConnect) {
+      hasCelebratedConnect = true;
+      if (typeof window.fireConfetti === 'function') window.fireConfetti();
+    } else if (state.status !== 'connected') {
+      hasCelebratedConnect = false;
+    }
+
+    if (state.botName) $('#botNameHeading').textContent = state.botName;
+    if (state.version) $('#versionLabel').textContent = 'v' + state.version;
+
+    // "Already Connected" inaonyeshwa TU wakati namba iliyoandikwa kwenye box
+    // ni namba ya OWNER (au box iko wazi) - namba nyingine yoyote inaweza
+    // kuendelea kupair session yake mwenyewe hata kama main bot tayari
+    // imeunganishwa (multi-session, kama .pairme).
+    const typedNumber = getFullPhoneNumber();
+    const isOwnerTyped = !typedNumber || (mainOwnerNumber && typedNumber === mainOwnerNumber);
+
+    if (state.status === 'connected' && isOwnerTyped) {
+      pairingResult.style.display = 'none';
+      connectedHint.style.display = 'block';
+      pairBtn.textContent = 'Already Connected';
+      pairBtn.disabled = true;
+      renderIdentityCard(state);
+    } else if (state.pairingCode) {
+      renderCodeSegments(state.pairingCode);
+      pairingResult.style.display = 'block';
+      connectedHint.style.display = 'none';
+      identityCard.style.display = 'none';
+    } else {
+      // Namba tofauti na owner (au owner hajaunganishwa bado) - acha kitufe
+      // kiwe hai ili mtu mwingine aweze kupair session yake mwenyewe.
+      connectedHint.style.display = 'none';
+      identityCard.style.display = 'none';
+      if (!pairBtn.disabled || pairBtn.textContent === 'Already Connected') {
+        pairBtn.textContent = 'Get Pairing Code';
+        pairBtn.disabled = false;
+      }
+    }
+
+    // sync toggles
+    if (state.settings) {
+      document.querySelectorAll('.switch input[data-key]').forEach((input) => {
+        const key = input.dataset.key;
+        if (key in state.settings) input.checked = !!state.settings[key];
+      });
+
+      const prefixInput = $('#prefixInput');
+      const botNameInput = $('#botNameInput');
+      
+      if (document.activeElement !== prefixInput && state.settings.prefix) {
+        prefixInput.value = state.settings.prefix;
+        prefixInput.placeholder = state.settings.prefix;
+      }
+      if (document.activeElement !== botNameInput && state.settings.botName) {
+        botNameInput.value = state.settings.botName;
+        botNameInput.placeholder = state.settings.botName;
+      }
+    }
+  }
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch('/api/status');
+      const data = await safeJson(res);
+      setStatusUI(data);
+      return data;
+    } catch (e) {
+      statusLabel.textContent = 'Failed to connect to server';
+    }
+  }
+
+  async function fetchConnectedDevices() {
+    try {
+      const res = await fetch('/api/devices');
+      const data = await safeJson(res);
+      
+      if (data.ok && data.devices && data.devices.length > 0) {
+        const list = $('#devicesList');
+        devicesCard.style.display = 'block';
+        list.innerHTML = data.devices.map(d => `
+          <div class="device-item">
+            <div class="device-info">
+              <div class="device-phone">📱 ${d.phone}</div>
+              <div class="device-status ${d.connected ? 'online' : ''}">
+                ${d.connected ? '🟢 Online' : '🔴 Offline'}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        devicesCard.style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Failed to fetch devices:', e);
+    }
+  }
+
+  phoneInput.addEventListener('input', () => {
+    if (lastStatusState) setStatusUI(lastStatusState);
+  });
+  countryCode.addEventListener('change', () => {
+    if (lastStatusState) setStatusUI(lastStatusState);
+  });
+
+  pairBtn.addEventListener('click', async () => {
+    hideError();
+    const phoneNumber = getFullPhoneNumber();
+
+    if (!phoneNumber || phoneNumber.length < 9) {
+      showError('Enter a valid phone number with country code (example: 255743383943)');
+      return;
+    }
+
+    let customCode = null;
+    if (useCustomCodeCheck.checked) {
+      customCode = customCodeInput.value.trim();
+      if (customCode.length !== 8) {
+        showError('Custom pairing code must be exactly 8 letters/numbers.');
+        return;
+      }
+    }
+
+    pairBtn.disabled = true;
+    pairBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+    try {
+      const res = await fetch('/api/pair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber, customCode }),
+      });
+      const data = await safeJson(res);
+
+      if (!data.ok) {
+        showError(data.error || 'An error occurred');
+        pairBtn.disabled = false;
+        pairBtn.textContent = 'Get Pairing Code';
+        return;
+      }
+
+      // Whitelisted number -> multi-session pairing: the code (if ready)
+      // comes back immediately in the response, no polling needed.
+      if (data.session) {
+        pairBtn.disabled = false;
+        pairBtn.textContent = 'Get Pairing Code';
+
+        if (data.code) {
+          renderCodeSegments(data.code);
+          pairingResult.style.display = 'block';
+          showSuccess('Pairing code ready! Enter it in WhatsApp within 60 seconds.');
+          return;
+        }
+
+        // Code wasn't ready yet - poll this specific session's status
+        showSuccess('Session starting... Waiting for the pairing code.');
+        let attempts = 0;
+        const maxAttempts = 15;
+        const cleaned = phoneNumber.replace(/[^0-9]/g, '');
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const sRes = await fetch(`/api/session-status/${cleaned}`);
+            const sData = await safeJson(sRes);
+            if (sData.ok && sData.pairingCode) {
+              renderCodeSegments(sData.pairingCode);
+              pairingResult.style.display = 'block';
+              clearInterval(pollInterval);
+            }
+          } catch (_) { /* keep polling */ }
+          if (attempts >= maxAttempts) clearInterval(pollInterval);
+        }, 2000);
+        return;
+      }
+
+      // Owner's own number -> main bot (singleton) - poll /api/status as before
+      showSuccess('Pairing code requested. Waiting for response...');
+
+      let attempts = 0;
+      const maxAttempts = 15;
+      const pollInterval = setInterval(async () => {
+        attempts++;
+        const state = await fetchStatus();
+
+        if (state && (state.pairingCode || state.status === 'connected' || attempts >= maxAttempts)) {
+          clearInterval(pollInterval);
+          pairBtn.disabled = false;
+          pairBtn.textContent = 'Get Pairing Code';
+        }
+      }, 2000);
+    } catch (e) {
+      showError('Failed to connect to server: ' + e.message);
+      pairBtn.disabled = false;
+      pairBtn.textContent = 'Get Pairing Code';
+    }
+  });
+
+  document.querySelectorAll('.switch input[data-key]').forEach((input) => {
+    input.addEventListener('change', async () => {
+      const key = input.dataset.key;
+      const value = input.checked;
+      try {
+        await fetch('/api/settings/' + key, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value }),
+        });
+      } catch (e) {
+        input.checked = !value;
+      }
+    });
+  });
+
+  /* ---------- PREFIX / BOTNAME SAVE ---------- */
+  const prefixInput = $('#prefixInput');
+  const botNameInput = $('#botNameInput');
+
+  $('#savePrefixBtn').addEventListener('click', async () => {
+    const value = prefixInput.value.trim();
+    if (!value) return;
+    const res = await fetch('/api/settings/prefix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value }),
+    });
+    const data = await safeJson(res);
+    if (!data.ok) alert(data.error || 'Error occurred');
+  });
+
+  $('#saveBotNameBtn').addEventListener('click', async () => {
+    const value = botNameInput.value.trim();
+    if (!value) return;
+    const res = await fetch('/api/settings/botName', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value }),
+    });
+    const data = await safeJson(res);
+    if (!data.ok) alert(data.error || 'Error occurred');
+  });
+
+  /* ---------- PREMIUM FEATURES ---------- */
+  // The password lives only in this in-memory variable for the current page
+  // session - never written to localStorage, never embedded in the HTML/JS
+  // source. It is verified server-side on every request.
+  let premiumPassword = null;
+
+  const premiumLocked = $('#premiumLocked');
+  const premiumUnlocked = $('#premiumUnlocked');
+  const premiumErrorBox = $('#premiumErrorBox');
+  const premiumSuccessBox = $('#premiumSuccessBox');
+  const premiumActionErrorBox = $('#premiumActionErrorBox');
+
+  function showPremiumError(msg) {
+    premiumErrorBox.textContent = msg;
+    premiumErrorBox.style.display = 'block';
+    setTimeout(() => { premiumErrorBox.style.display = 'none'; }, 4000);
+  }
+
+  function showPremiumActionResult(ok, msg) {
+    const box = ok ? premiumSuccessBox : premiumActionErrorBox;
+    box.textContent = msg;
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 4000);
+  }
+
+  $('#premiumUnlockBtn').addEventListener('click', async () => {
+    const pw = $('#premiumPasswordInput').value.trim();
+    if (!pw) return;
+    try {
+      const res = await fetch('/api/premium/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      const data = await safeJson(res);
+      if (!data.ok) {
+        showPremiumError(data.error || 'Password si sahihi.');
+        return;
+      }
+      premiumPassword = pw;
+      premiumLocked.style.display = 'none';
+      premiumUnlocked.style.display = 'block';
+      loadPremiumCurrentValues();
+    } catch (e) {
+      showPremiumError('Failed to reach server.');
+    }
+  });
+
+  $('#premiumPasswordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') $('#premiumUnlockBtn').click();
+  });
+
+  async function callPremiumEndpoint(endpoint, body) {
+    const res = await fetch('/api/premium/' + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...body, password: premiumPassword }),
+    });
+    return safeJson(res);
+  }
+
+  // Load current values into fields once premium is unlocked, so the admin
+  // sees what's currently configured instead of blank inputs.
+  async function loadPremiumCurrentValues() {
+    try {
+      const [disabledRes, cooldownRes] = await Promise.all([
+        fetch('/api/premium/disabled-commands').then(safeJson).catch(() => null),
+        fetch('/api/premium/cooldowns').then(safeJson).catch(() => null),
+      ]);
+      if (disabledRes && disabledRes.ok) {
+        $('#premiumDisabledCommands').value = (disabledRes.disabledCommands || []).join(', ');
+      }
+      if (cooldownRes && cooldownRes.ok) {
+        renderCooldownList(cooldownRes.commandCooldowns || {});
+      }
+      if (lastStatusState && lastStatusState.settings) {
+        const s = lastStatusState.settings;
+        if (s.defaultWelcomeMsg) $('#premiumWelcomeMsg').value = s.defaultWelcomeMsg;
+        if (s.defaultGoodbyeMsg) $('#premiumGoodbyeMsg').value = s.defaultGoodbyeMsg;
+        if (s.aiSystemPrompt) $('#premiumAiPrompt').value = s.aiSystemPrompt;
+      }
+    } catch (e) { /* ignore - fields just stay empty, non-critical */ }
+  }
+
+  document.querySelectorAll('[data-premium-save]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const endpoint = btn.dataset.premiumSave;
+      let body = {};
+      let value = '';
+
+      if (endpoint === 'bot-image') { value = $('#premiumBotImage').value.trim(); body = { url: value }; }
+      if (endpoint === 'bot-song') { value = $('#premiumBotSong').value.trim(); body = { url: value }; }
+      if (endpoint === 'owner-number') { value = $('#premiumOwnerNumber').value.trim(); body = { number: value }; }
+      if (endpoint === 'online-footer') { value = $('#premiumOnlineFooter').value.trim(); body = { text: value }; }
+      if (endpoint === 'pairing-code') { value = $('#premiumPairingCode').value.trim().toUpperCase(); body = { code: value }; }
+
+      if (!value) return;
+
+      const data = await callPremiumEndpoint(endpoint, body);
+      if (data.ok) {
+        showPremiumActionResult(true, 'Saved successfully.');
+      } else {
+        showPremiumActionResult(false, data.error || 'Failed to save.');
+      }
+    });
+  });
+
+  // ---- FEATURE 6: Command Toggle Panel ----
+  $('#premiumSaveDisabledBtn').addEventListener('click', async () => {
+    const commands = $('#premiumDisabledCommands').value.trim();
+    const data = await callPremiumEndpoint('disabled-commands', { commands });
+    if (data.ok) {
+      $('#premiumDisabledCommands').value = (data.disabledCommands || []).join(', ');
+      showPremiumActionResult(true, 'Command list updated.');
+    } else {
+      showPremiumActionResult(false, data.error || 'Failed to save.');
+    }
+  });
+
+  // ---- FEATURE 9: Custom Welcome/Goodbye ----
+  $('#premiumSaveWelcomeGoodbyeBtn').addEventListener('click', async () => {
+    const welcomeMsg = $('#premiumWelcomeMsg').value.trim();
+    const goodbyeMsg = $('#premiumGoodbyeMsg').value.trim();
+    if (!welcomeMsg && !goodbyeMsg) return;
+    const data = await callPremiumEndpoint('welcome-goodbye', { welcomeMsg, goodbyeMsg });
+    if (data.ok) {
+      showPremiumActionResult(true, 'Welcome/Goodbye messages updated.');
+    } else {
+      showPremiumActionResult(false, data.error || 'Failed to save.');
+    }
+  });
+
+  // ---- FEATURE 12: AI Personality Editor ----
+  $('#premiumSaveAiPromptBtn').addEventListener('click', async () => {
+    const prompt = $('#premiumAiPrompt').value.trim();
+    if (!prompt) return;
+    const data = await callPremiumEndpoint('ai-personality', { prompt });
+    if (data.ok) {
+      showPremiumActionResult(true, 'AI personality updated.');
+    } else {
+      showPremiumActionResult(false, data.error || 'Failed to save.');
+    }
+  });
+
+  // ---- BONUS: Command Cooldown / Rate Limiter ----
+  function renderCooldownList(cooldowns) {
+    const list = $('#cooldownList');
+    const entries = Object.entries(cooldowns || {});
+    if (entries.length === 0) {
+      list.innerHTML = '<div style="font-size:11.5px;color:var(--text-dim);">No cooldowns set.</div>';
+      return;
+    }
+    list.innerHTML = entries.map(([cmd, secs]) => `
+      <div class="cooldown-item">
+        <span>.${cmd} — ${secs}s</span>
+        <button data-remove-cooldown="${cmd}">Remove</button>
+      </div>
+    `).join('');
+    list.querySelectorAll('[data-remove-cooldown]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const cmd = btn.dataset.removeCooldown;
+        const data = await callPremiumEndpoint('cooldowns', { command: cmd, seconds: 0 });
+        if (data.ok) {
+          renderCooldownList(data.commandCooldowns);
+          showPremiumActionResult(true, `Cooldown removed for .${cmd}`);
+        }
+      });
+    });
+  }
+
+  $('#premiumAddCooldownBtn').addEventListener('click', async () => {
+    const command = $('#premiumCooldownCmd').value.trim();
+    const seconds = Number($('#premiumCooldownSecs').value);
+    if (!command || !Number.isFinite(seconds) || seconds <= 0) {
+      showPremiumActionResult(false, 'Weka jina la command na sekunde sahihi.');
+      return;
+    }
+    const data = await callPremiumEndpoint('cooldowns', { command, seconds });
+    if (data.ok) {
+      renderCooldownList(data.commandCooldowns);
+      $('#premiumCooldownCmd').value = '';
+      $('#premiumCooldownSecs').value = '';
+      showPremiumActionResult(true, `Cooldown set for .${command}`);
+    } else {
+      showPremiumActionResult(false, data.error || 'Failed to save.');
+    }
+  });
+
+  // ---- FEATURE 7: Live Logs Viewer ----
+  let logsPolling = null;
+  let logsSince = null;
+  const logViewer = $('#logViewer');
+  const logStatusLabel = $('#logStatusLabel');
+  const logsToggleBtn = $('#premiumLogsToggleBtn');
+
+  function appendLogLines(logs) {
+    if (!logs || logs.length === 0) return;
+    const atBottom = logViewer.scrollTop + logViewer.clientHeight >= logViewer.scrollHeight - 20;
+    logs.forEach((l) => {
+      const div = document.createElement('div');
+      div.className = 'log-line lvl-' + l.level;
+      const time = new Date(l.time).toLocaleTimeString();
+      div.textContent = `[${time}] ${l.msg}`;
+      logViewer.appendChild(div);
+    });
+    while (logViewer.children.length > 300) logViewer.removeChild(logViewer.firstChild);
+    if (atBottom) logViewer.scrollTop = logViewer.scrollHeight;
+  }
+
+  async function pollLogs() {
+    const data = await callPremiumEndpoint('logs', { since: logsSince });
+    if (data.ok) {
+      appendLogLines(data.logs);
+      logsSince = data.now;
+    }
+  }
+
+  logsToggleBtn.addEventListener('click', async () => {
+    if (logsPolling) {
+      clearInterval(logsPolling);
+      logsPolling = null;
+      logStatusLabel.textContent = 'Paused';
+      logsToggleBtn.textContent = 'Start Live Logs';
+    } else {
+      logViewer.innerHTML = '';
+      logsSince = null;
+      await pollLogs();
+      logsPolling = setInterval(pollLogs, 2000);
+      logStatusLabel.textContent = 'Live';
+      logsToggleBtn.textContent = 'Stop Live Logs';
+    }
+  });
+
+  // ---- FEATURE 17: Backup & Restore Session ----
+  $('#premiumBackupBtn').addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/premium/backup-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: premiumPassword }),
+      });
+      if (!res.ok) {
+        const data = await safeJson(res);
+        showPremiumActionResult(false, data.error || 'Backup failed.');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bmw-session-backup-${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showPremiumActionResult(true, 'Backup downloaded.');
+    } catch (e) {
+      showPremiumActionResult(false, 'Backup failed.');
+    }
+  });
+
+  $('#premiumRestoreBtn').addEventListener('click', async () => {
+    const fileInput = $('#premiumRestoreFile');
+    const file = fileInput.files[0];
+    if (!file) {
+      showPremiumActionResult(false, 'Chagua faili la .zip kwanza.');
+      return;
+    }
+    if (!confirm('Hii itafuta session ya sasa na kuweka ile ya backup. Endelea?')) return;
+    try {
+      const formData = new FormData();
+      formData.append('password', premiumPassword);
+      formData.append('sessionZip', file);
+      const res = await fetch('/api/premium/restore-session', { method: 'POST', body: formData });
+      const data = await safeJson(res);
+      if (data.ok) {
+        showPremiumActionResult(true, data.message || 'Session imerudishwa.');
+        fileInput.value = '';
+      } else {
+        showPremiumActionResult(false, data.error || 'Restore failed.');
+      }
+    } catch (e) {
+      showPremiumActionResult(false, 'Restore failed.');
+    }
+  });
+
+  $('#premiumLogoutBtn').addEventListener('click', async () => {
+    if (!confirm('Are you sure? This will disconnect the bot session.')) return;
+    const data = await callPremiumEndpoint('logout', {});
+    if (data.ok) {
+      showPremiumActionResult(true, data.message || 'Logged out.');
+    } else {
+      showPremiumActionResult(false, data.error || 'Failed to logout.');
+    }
+  });
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes <= 0) return '0 MB';
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1024) return `${mb.toFixed(1)} MB`;
+    return `${(mb / 1024).toFixed(2)} GB`;
+  }
+
+  function formatUptime(totalSeconds) {
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    if (d > 0) return `${d}d ${h}h ${m}m`;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
+  }
+
+  function barClassFor(percent) {
+    if (percent >= 85) return 'danger';
+    if (percent >= 60) return 'warn';
+    return '';
+  }
+
+  async function fetchSystemStats() {
+    try {
+      const res = await fetch('/api/system-stats');
+      const data = await safeJson(res);
+      if (!data.ok) throw new Error(data.error || 'Failed to load stats');
+
+      const cpuPercent = data.cpu.percent;
+      $('#cpuValue').textContent = `${cpuPercent.toFixed(1)}%`;
+      const cpuBar = $('#cpuBar');
+      cpuBar.style.width = `${Math.min(100, cpuPercent)}%`;
+      cpuBar.className = `stat-bar-fill ${barClassFor(cpuPercent)}`;
+
+      const ramUsedMB = data.memory.processRssBytes / (1024 * 1024);
+      const ramTotalMB = data.memory.systemTotalBytes / (1024 * 1024);
+      const ramPercent = ramTotalMB > 0 ? (ramUsedMB / ramTotalMB) * 100 : 0;
+      $('#ramValue').textContent = `${ramUsedMB.toFixed(1)} MB`;
+      const ramBar = $('#ramBar');
+      ramBar.style.width = `${Math.min(100, ramPercent)}%`;
+      ramBar.className = `stat-bar-fill ${barClassFor(ramPercent)}`;
+
+      $('#statsMeta').textContent =
+        `${data.cpu.cores} cores • System RAM: ${formatBytes(data.memory.systemUsedBytes)} / ${formatBytes(data.memory.systemTotalBytes)} • ` +
+        `Uptime: ${formatUptime(data.uptime.processSeconds)} • Node ${data.platform.nodeVersion}`;
+    } catch (err) {
+      $('#statsMeta').textContent = 'Could not load server stats.';
+    }
+  }
+
+  // ---------- ANIMATION: Confetti (fires once on successful connect) ----------
+  (function initConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animId = null;
+
+    function resize() {
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const colors = ['#c8ff4d', '#8fb83a', '#ffffff', '#ffb84d'];
+
+    window.fireConfetti = function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const w = window.innerWidth;
+      const count = 90;
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: w / 2 + (Math.random() - 0.5) * 120,
+          y: window.innerHeight * 0.28,
+          vx: (Math.random() - 0.5) * 9,
+          vy: Math.random() * -9 - 3,
+          size: Math.random() * 5 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * Math.PI * 2,
+          vr: (Math.random() - 0.5) * 0.3,
+          life: 0,
+          maxLife: 90 + Math.random() * 40,
+        });
+      }
+      if (!animId) tick();
+    };
+
+    function tick() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      particles.forEach((p) => {
+        p.vy += 0.22; // gravity
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.life++;
+        const alpha = Math.max(0, 1 - p.life / p.maxLife);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+      });
+      particles = particles.filter((p) => p.life < p.maxLife && p.y < window.innerHeight + 40);
+      if (particles.length > 0) {
+        animId = requestAnimationFrame(tick);
+      } else {
+        animId = null;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+    }
+  })();
+
+  // ---------- LIVE HEALTH CHECK ----------
+  const healthDot = $('#healthDot');
+  const healthValue = $('#healthValue');
+  const healthLastChecked = $('#healthLastChecked');
+
+  async function pingHealth() {
+    const start = performance.now();
+    try {
+      const res = await fetch('/api/status', { cache: 'no-store' });
+      const latency = Math.round(performance.now() - start);
+      if (!res.ok) throw new Error('bad status');
+
+      let tier = 'good', label = 'Excellent';
+      if (latency > 800) { tier = 'bad'; label = 'Slow'; }
+      else if (latency > 300) { tier = 'ok'; label = 'OK'; }
+
+      healthDot.className = 'health-dot ' + tier;
+      healthValue.textContent = `${label} · ${latency}ms`;
+      healthLastChecked.textContent = 'checked just now';
+    } catch (e) {
+      healthDot.className = 'health-dot bad';
+      healthValue.textContent = 'Unreachable';
+      healthLastChecked.textContent = 'connection failed';
+    }
+  }
+
+  setInterval(pingHealth, 5000);
+  pingHealth();
+
+  // Poll status every 3 seconds
+  setInterval(fetchStatus, 3000);
+  setInterval(fetchConnectedDevices, 5000);
+  setInterval(fetchSystemStats, 4000);
+
+  // Initial load
+  fetchStatus();
+  fetchConnectedDevices();
+  fetchSystemStats();
+
+  // ---------- ACCOUNT: Logout + Login Activity (Device & Location) ----------
+  document.getElementById('accountLogoutBtn').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/login.html';
+  });
+
+  async function loadLoginHistory() {
+    try {
+      const res = await fetch('/api/account/login-history');
+      const data = await res.json();
+      const list = document.getElementById('loginHistoryList');
+      if (!data.ok || !data.history?.length) {
+        list.innerHTML = 'No login activity yet.';
+        return;
+      }
+      list.innerHTML = data.history.map((h) => {
+        const when = new Date(h.created_at).toLocaleString();
+        const place = [h.city, h.country].filter(Boolean).join(', ') || 'Unknown location';
+        return `<div style="padding:8px 0;border-bottom:1px solid var(--line);">
+          <div style="color:var(--text);">${place} <span style="color:var(--text-dim);">(${h.ip_address || '—'})</span></div>
+          <div style="font-size:10.5px;margin-top:2px;">${when}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      document.getElementById('loginHistoryList').innerHTML = 'Failed to load.';
+    }
+  }
+  loadLoginHistory();
+
+  // ---------- FEATURE: API Key Licensing ----------
+  async function loadLicenses() {
+    try {
+      const res = await fetch('/api/licenses');
+      const data = await res.json();
+      const list = document.getElementById('licenseList');
+      if (!data.ok || !data.licenses?.length) {
+        list.innerHTML = '<div style="color:var(--text-dim);">No keys generated yet.</div>';
+        return;
+      }
+      list.innerHTML = data.licenses.map((l) => {
+        const now = Date.now();
+        const expired = !l.is_owner && l.expires_at && new Date(l.expires_at).getTime() < now;
+        const status = l.revoked ? 'REVOKED' : (l.is_owner ? 'OWNER (∞)' : (expired ? 'EXPIRED' : 'ACTIVE'));
+        const statusColor = l.revoked || expired ? 'var(--red)' : 'var(--lime)';
+        const zipUrl = `${window.location.origin}/api/bot-zip?key=${l.api_key}`;
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--line);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span>${l.label || '(no label)'} — <span style="color:${statusColor};">${status}</span></span>
+            ${!l.revoked ? `<button data-revoke-id="${l.id}" style="width:auto;margin:0;padding:4px 10px;font-size:10px;background:transparent;border:1px solid var(--red);color:var(--red);">Revoke</button>` : ''}
+          </div>
+          <div style="color:var(--text-dim);font-size:10.5px;margin-top:4px;word-break:break-all;">${zipUrl}</div>
+          <div style="color:var(--text-dim);font-size:10px;margin-top:2px;">Checked in: ${l.checkin_count || 0}x ${l.last_checkin_at ? '· last ' + new Date(l.last_checkin_at).toLocaleString() : ''}</div>
+          <div style="color:${l.zip_downloaded ? 'var(--lime-dim)' : 'var(--text-dim)'};font-size:10px;margin-top:2px;">${l.is_owner ? '♾️ Unlimited downloads (owner)' : (l.zip_downloaded ? '📦 Zip already downloaded (link used up)' : '📦 Zip not downloaded yet')}</div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('[data-revoke-id]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Revoke this key? The customer bot will stop on its next check-in.')) return;
+          await fetch(`/api/licenses/${btn.dataset.revokeId}`, { method: 'DELETE' });
+          loadLicenses();
+        });
+      });
+    } catch (e) {
+      document.getElementById('licenseList').innerHTML = 'Failed to load.';
+    }
+  }
+
+  document.getElementById('generateLicenseBtn').addEventListener('click', async () => {
+    const label = document.getElementById('licenseLabel').value.trim();
+    const expiresInHours = document.getElementById('licenseHours').value;
+    const isOwner = document.getElementById('licenseOwnerCheck').checked;
+
+    const res = await fetch('/api/licenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label, expiresInHours, isOwner }),
+    });
+    const data = await res.json();
+    const box = document.getElementById('licenseSuccessBox');
+    if (data.ok) {
+      const zipUrl = `${window.location.origin}/api/bot-zip?key=${data.license.api_key}`;
+      box.innerHTML = `✅ Key generated. Share this link:<br><span style="font-family:'JetBrains Mono',monospace;word-break:break-all;">${zipUrl}</span>`;
+      box.style.display = 'block';
+      document.getElementById('licenseLabel').value = '';
+      loadLicenses();
+    } else {
+      box.textContent = data.error || 'Failed to generate key.';
+      box.style.display = 'block';
+    }
+  });
+
+  loadLicenses();
+</script>
+</body>
+</html>
