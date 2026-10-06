@@ -100,7 +100,7 @@ const MENU_SECTIONS = [
     },
     {
         key: "auto", aliases: ["auto"], icon: "🔁", title: "AUTO (Owner)",
-        items: ["{p}autostatusview on/off", "{p}autotyping on/off", "{p}autorecord on/off", "{p}autoreact on/off", "{p}autoreactstatus on/off", "{p}antilink on/off", "{p}antidelete on/off", "{p}channelbranding on/off"],
+        items: ["{p}autoviewstatus on/off", "{p}autostatusview on/off", "{p}autotyping on/off", "{p}autorecord on/off", "{p}autoreact on/off", "{p}autoreactstatus on/off", "{p}antilink on/off", "{p}antidelete on/off", "{p}channelbranding on/off"],
     },
 ];
 
@@ -2465,8 +2465,9 @@ async function handleCommand(sock, msg, command, args, text) {
                 break;
             }
 
-            case "autostatusview":
-            case "autotyping":
+case "autoviewstatus":
+case "autostatusview":
+case "autotyping":
             case "autorecord":
             case "autoreact":
             case "autoreactstatus":
@@ -2476,7 +2477,8 @@ async function handleCommand(sock, msg, command, args, text) {
                 if (!isOwner) return reply(sock, jid, "🚫 This command is owner only.", msg);
 
                 const keyMap = {
-                    autostatusview: "autoStatusView",
+                    autoviewstatus: "autoStatusView",
+  autostatusview: "autoStatusView",
                     autotyping: "autoTyping",
                     autorecord: "autoRecord",          // fake "recording audio" presence
                     autoreact: "autoReactMessages",   // react kila ujumbe unaoingia
@@ -2516,7 +2518,7 @@ async function handleCommand(sock, msg, command, args, text) {
             return;
         }
 
-        await reply(sock, jid, `❌ Hitilafu imetokea. Jaribu tena baadaye.`, msg).catch((sendErr) => {
+        await reply(sock, jid, `❌ Something went wrong. Please try again later.`, msg).catch((sendErr) => {
             logger.error(`Imeshindwa kutuma reply ya error kwa ${jid}: ${sendErr.message}`);
         });
     }
