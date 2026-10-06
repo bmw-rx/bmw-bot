@@ -2,11 +2,11 @@
   "name": "bmw-lite-bot",
   "version": "2.0.0",
   "description": "BMW LITE - WhatsApp Bot kamili kwa Termux kwa kutumia Baileys, na pairing code, AI, Downloader, Maker, Search, Tools na Auto Features.",
-  "main": "index.js",
+  "main": "main-bmw.js",
   "scripts": {
     "start": "node dashboard.js",
     "dashboard": "node dashboard.js",
-    "cli": "node index.js",
+    "cli": "node main-bmw.js",
     "cleanup": "node cleanup.js",
     "reset-session": "node reset-session.js"
   },
